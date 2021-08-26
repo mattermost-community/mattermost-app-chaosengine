@@ -46,7 +46,8 @@ func (s *Service) CreateTeam(dto CreateTeamDTO) ([]TeamMember, error) {
 	return members, nil
 }
 
-// LookupTeams responsible to
+// LookupTeams responsible to return the teams with a formatted data structure
+// so the application can show up the values correctly
 func (s *Service) LookupTeams() ([]LookupTeamDTO, error) {
 	teams, err := s.repo.GetTeams()
 	if err != nil {
@@ -59,7 +60,7 @@ func (s *Service) LookupTeams() ([]LookupTeamDTO, error) {
 	return results, nil
 }
 
-// LookupTeams responsible to
+// GetTeams responsible to return the full list of teams
 func (s *Service) GetTeams() ([]TeamMember, error) {
 	teams, err := s.repo.GetTeams()
 	if err != nil {
