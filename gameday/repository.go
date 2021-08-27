@@ -82,8 +82,9 @@ func (r *Repository) CreateTeam(name string) (string, error) {
 	return id, nil
 }
 
-// ListTeams returns the list of gamedays created in the app
-func (r *Repository) ListTeams(id string) ([]TeamMember, error) {
+// ListTeams returns the list of gamedays created in the app for the given
+// team ID
+func (r *Repository) ListTeams(teamID string) ([]TeamMember, error) {
 	sql := `SELECT
 		team_member.*,
 		team.id "team.id",
@@ -92,7 +93,7 @@ func (r *Repository) ListTeams(id string) ([]TeamMember, error) {
 	  team_member JOIN team ON team_member.team_id = team.id
 	  WHERE team.id = "%s";`
 
-	sql = fmt.Sprintf(sql, id)
+	sql = fmt.Sprintf(sql, teamID)
 	var teamMembers []TeamMember
 	if err := r.store.DB.Select(&teamMembers, sql); err != nil {
 		return []TeamMember{}, errors.Wrap(err, "failed to list team members")
@@ -100,7 +101,7 @@ func (r *Repository) ListTeams(id string) ([]TeamMember, error) {
 	return teamMembers, nil
 }
 
-// ListTeams returns the list of gamedays created in the app
+// GetTeams returns the list of gamedays created in the app
 func (r *Repository) GetTeams() ([]TeamMember, error) {
 	sql := `SELECT
 		team_member.*,
