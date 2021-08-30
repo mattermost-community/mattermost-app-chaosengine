@@ -28,6 +28,7 @@ var migrations = []migration{
 		_, err = e.Exec(`
 			CREATE TABLE gameday (
 				id CHAR(26) PRIMARY KEY,
+				title VARCHAR(32) NOT NULL,
 				team_id CHAR(26) NOT NULL,
 				scheduled_at BIGINT NOT NULL,
 				created_at BIGINT NOT NULL,

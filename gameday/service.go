@@ -1,8 +1,11 @@
 package gameday
 
 import (
+	"fmt"
 	"strings"
 
+	"github.com/mattermost/mattermost-plugin-apps/apps"
+	"github.com/mattermost/mattermost-plugin-apps/apps/mmclient"
 	"github.com/pkg/errors"
 )
 
@@ -67,4 +70,25 @@ func (s *Service) GetTeams() ([]TeamMember, error) {
 		return []TeamMember{}, errors.Wrap(err, "failed to get teams in repository")
 	}
 	return teams, nil
+}
+
+// CreateGameday responsible to create a gameday in database
+func (s *Service) CreateGameday(ctx *apps.Context, dto GamedayDTO) error {
+	gameday := Gameday{
+		Title:       dto.Name,
+		TeamID:      dto.Team.Value,
+		ScheduledAt: dto.ScheduledAt.Unix(),
+	}
+	if err := s.repo.CreateGameday(gameday); err != nil {
+		return errors.Wrap(err, "failed to create a gameday")
+	}
+	members, err := s.repo.ListTeams(dto.Team.Value)
+	if err != nil {
+		return errors.Wrap(err, "failed to fetch team members in repository")
+	}
+	msg := fmt.Sprintf("Gameday: **%s** is scheduled for %s", strings.ToUpper(dto.Name), dto.ScheduledAt.String())
+	for _, m := range members {
+		mmclient.AsBot(ctx).DM(m.UserID, msg)
+	}
+	return nil
 }

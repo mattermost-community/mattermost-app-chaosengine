@@ -1,6 +1,11 @@
 package gameday
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+)
 
 // MemberDTO the data transfer object for
 // of a member which matches MM user
@@ -40,4 +45,55 @@ func (c CreateTeamDTO) Validate() error {
 type LookupTeamDTO struct {
 	Label string `json:"label"`
 	Value string `json:"value"`
+}
+
+// GamedayDTO the data transfer object for
+// creating a new gameday
+type GamedayDTO struct {
+	Name        string
+	Team        LookupTeamDTO
+	ScheduledAt ScheduledAtTime `json:"schedule_at"`
+}
+
+// Validate check if the DTO has the required values
+func (g GamedayDTO) Validate() error {
+	if g.Name == "" {
+		return errors.New("failed: missing required field name")
+	}
+	if g.Team.Value == "" {
+		return errors.New("failed: missing required field team ID")
+	}
+	if g.ScheduledAt.String() == "" {
+		return errors.New("failed: missing required field scheduled_at")
+	}
+	return nil
+}
+
+// ScheduledAtTime time for `scheduled_at`
+type ScheduledAtTime time.Time
+
+const timeLayout = "2006-01-02 15:04:05"
+
+// UnmarshalJSON Parses the json string in the custom format
+func (ct *ScheduledAtTime) UnmarshalJSON(b []byte) (err error) {
+	s := strings.Trim(string(b), `"`)
+	nt, err := time.Parse(timeLayout, s)
+	*ct = ScheduledAtTime(nt)
+	return
+}
+
+// MarshalJSON writes a quoted string in the custom format
+func (ct ScheduledAtTime) MarshalJSON() ([]byte, error) {
+	return []byte(timeLayout), nil
+}
+
+// Unix the unix for the scheduled at time
+func (ct *ScheduledAtTime) Unix() int64 {
+	return time.Time(*ct).Unix()
+}
+
+// String returns the time in the custom format
+func (ct *ScheduledAtTime) String() string {
+	t := time.Time(*ct)
+	return fmt.Sprintf("%q", t.Format(timeLayout))
 }

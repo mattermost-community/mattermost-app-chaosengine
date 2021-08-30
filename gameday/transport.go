@@ -10,6 +10,7 @@ import (
 	"github.com/mattermost/mattermost-app-chaosengine/transport"
 	"github.com/mattermost/mattermost-plugin-apps/apps"
 	"github.com/mattermost/mattermost-plugin-apps/apps/mmclient"
+	"github.com/mattermost/mattermost-plugin-apps/utils/md"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,9 +18,9 @@ func AddRoutes(router *mux.Router, svc *Service, logger logrus.FieldLogger) {
 	router.HandleFunc("/api/v1/teams/create/submit", handleCreateTeam(svc))
 	router.HandleFunc("/api/v1/teams/list/submit", handleGetTeams(svc))
 	router.HandleFunc("/api/v1/gamedays/create/lookup", handleGamedayLookupTeams(svc))
-	router.HandleFunc("/api/v1/gamedays/create/submit", nil) //TBD
-	router.HandleFunc("/api/v1/gamedays/list/form", nil)     //TBD
-	router.HandleFunc("/api/v1/gamedays/start/submit", nil)  //TBD
+	router.HandleFunc("/api/v1/gamedays/create/submit", handleCreateGameday(svc)) //TBD
+	router.HandleFunc("/api/v1/gamedays/list/submit", nil)                        //TBD
+	router.HandleFunc("/api/v1/gamedays/start/submit", nil)                       //TBD
 }
 
 func handleCreateTeam(svc *Service) http.HandlerFunc {
@@ -50,8 +51,8 @@ func handleCreateTeam(svc *Service) http.HandlerFunc {
 			transport.WriteBadRequestError(w, err)
 			return
 		}
-		mmclient.AsBot(call.Context).
-			DM(dto.Member.UserID, "You are added in Team: **%s**", strings.ToUpper(dto.Name))
+		msg := fmt.Sprintf("You are added in Team: **%s**", strings.ToUpper(dto.Name))
+		mmclient.AsBot(call.Context).DM(dto.Member.UserID, msg)
 
 		transport.WriteJSON(w, apps.CallResponse{
 			Type:     apps.CallResponseTypeOK,
@@ -97,6 +98,40 @@ func handleGamedayLookupTeams(svc *Service) http.HandlerFunc {
 			Data: map[string]interface{}{
 				"items": teams,
 			},
+		})
+	}
+}
+
+func handleCreateGameday(svc *Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		call, err := apps.CallRequestFromJSONReader(r.Body)
+		if err != nil {
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+
+		jsonString, err := json.Marshal(call.Values)
+		if err != nil {
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+		var dto GamedayDTO
+		if err := json.Unmarshal(jsonString, &dto); err != nil {
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+		if err := dto.Validate(); err != nil {
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+		if err := svc.CreateGameday(call.Context, dto); err != nil {
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+
+		transport.WriteJSON(w, apps.CallResponse{
+			Type:     apps.CallResponseTypeOK,
+			Markdown: md.MD(fmt.Sprintf("Gameday **%s** scheduled succesfully", dto.Name)),
 		})
 	}
 }
