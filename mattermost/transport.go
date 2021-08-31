@@ -52,6 +52,12 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 				Form: &apps.Form{
 					Fields: []*apps.Field{
 						{
+							Type:       "text",
+							Name:       "name",
+							Label:      "name",
+							IsRequired: true,
+						},
+						{
 							Type:       "dynamic_select",
 							Name:       "team",
 							Label:      "team",
@@ -59,8 +65,8 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 						},
 						{
 							Type:        "text",
-							Name:        "schedule-at",
-							Label:       "schedule-at",
+							Name:        "schedule_at",
+							Label:       "schedule_at",
 							Description: "Format [YYYY-DD-MM HH:MM:SS]",
 							IsRequired:  true,
 						},

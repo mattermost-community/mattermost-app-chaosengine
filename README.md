@@ -4,7 +4,7 @@ ChaosEngine app nominate randomly a different MoD and On-call person for every G
 The Chaos Engine App is integrated in Mattermost and you can create:
 - Chaos Teams create `/chaos-engine team create --name sre --member @spiros`
 - Chaos Teams list `/chaos-engine team list`
-- Chaos Gamedays create `/chaos-engine gameday create --name chaos-august --team sre --schedule-at 2021-25-08 07:00:00` (pending feature)
+- Chaos Gamedays create `/chaos-engine gameday create --name "Chaos: K8s Node failures" --team sre --schedule-at "2021-25-08 07:00:00"`
 - Chaos Gameday Start `/chaos-engine gameday start --day chaos-august` (pending feature)
 - Chaos Gameday list `/chaos-engine gameday list` (pending feature)
 

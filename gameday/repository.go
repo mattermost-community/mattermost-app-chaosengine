@@ -54,6 +54,7 @@ func (r *Repository) ListGamedays() ([]Gameday, error) {
 func (r *Repository) CreateGameday(gameday Gameday) error {
 	insertsMap := map[string]interface{}{
 		"id":           store.NewID(),
+		"title":        gameday.Title,
 		"team_id":      gameday.TeamID,
 		"scheduled_at": gameday.ScheduledAt,
 		"created_at":   time.Now().UnixNano() / int64(time.Millisecond),
