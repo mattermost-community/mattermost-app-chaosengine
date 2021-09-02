@@ -1,0 +1,54 @@
+version: 2.1
+executors:
+  default:
+    docker:
+    - image: circleci/golang:1.16
+
+aliases:
+- &restore_cache
+  restore_cache:
+    key: go-mod-v1-{{ checksum "go.sum" }}
+- &save_cache
+  save_cache:
+    key: go-mod-v1-{{ checksum "go.sum" }}
+    paths:
+      - "/go/pkg/mod"
+
+jobs:
+  check-style:
+    executor:
+      name: default
+    steps:
+    - checkout
+    - *restore_cache
+    - run: make check-style
+    - *save_cache
+
+  check-modules:
+    executor:
+      name: defaultw
+    steps:
+    - checkout
+    - *restore_cache
+    - run: make check-modules
+    - *save_cache
+
+workflows:
+  version: 2
+  ci-build:
+    jobs:
+    - check-style
+    - check-modules
+
+  master-build:
+    jobs:
+    - check-style:
+        filters:
+          branches:
+            only:
+            - master
+    - check-modules:
+        filters:
+          branches:
+            only:
+            - master
