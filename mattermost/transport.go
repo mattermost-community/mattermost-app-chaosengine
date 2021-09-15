@@ -79,6 +79,7 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 			{
 				Location: "list",
 				Label:    "list",
+				Form:     &apps.Form{},
 				Call: &apps.Call{
 					Path: "/api/v1/gamedays/list",
 				},
@@ -86,8 +87,52 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 			{
 				Location: "start",
 				Label:    "start",
+				Form: &apps.Form{
+					Fields: []*apps.Field{
+						{
+							Type:       "dynamic_select",
+							Name:       "id",
+							Label:      "id",
+							IsRequired: true,
+						},
+					},
+				},
 				Call: &apps.Call{
 					Path: "/api/v1/gamedays/start",
+				},
+			},
+			{
+				Location: "complete",
+				Label:    "complete",
+				Form: &apps.Form{
+					Fields: []*apps.Field{
+						{
+							Type:       "dynamic_select",
+							Name:       "id",
+							Label:      "id",
+							IsRequired: true,
+						},
+					},
+				},
+				Call: &apps.Call{
+					Path: "/api/v1/gamedays/complete",
+				},
+			},
+			{
+				Location: "cancel",
+				Label:    "cancel",
+				Form: &apps.Form{
+					Fields: []*apps.Field{
+						{
+							Type:       "dynamic_select",
+							Name:       "id",
+							Label:      "id",
+							IsRequired: true,
+						},
+					},
+				},
+				Call: &apps.Call{
+					Path: "/api/v1/gamedays/cancel",
 				},
 			},
 		},
