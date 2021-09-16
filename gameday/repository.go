@@ -149,7 +149,7 @@ func (r *Repository) GetTeams() ([]TeamMember, error) {
 		team.id "team.id",
 		team.name "team.name"
 	  FROM
-	  team_member JOIN team ON team_member.team_id = team.id;`
+	  team_member INNER JOIN team ON team_member.team_id = team.id;`
 
 	var teamMembers []TeamMember
 	if err := r.store.DB.Select(&teamMembers, sql); err != nil {
