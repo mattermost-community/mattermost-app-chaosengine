@@ -41,7 +41,7 @@ func init() {
 	viper.SetConfigType("yml")
 
 	defaults := map[string]interface{}{
-		"debug":       true,
+		"debug":       false,
 		"environment": "dev",
 		"address":     ":3000",
 
