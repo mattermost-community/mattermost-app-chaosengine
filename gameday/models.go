@@ -42,11 +42,11 @@ type GamedayState string
 const (
 	// GamedayScheduledState when we schedule a gameday
 	GamedayScheduledState GamedayState = "scheduled"
-	// GamedayScheduledState when a gameday is in progress
+	// GamedayInProgressState when a gameday is in progress
 	GamedayInProgressState GamedayState = "in_progress"
-	// GamedayScheduledState when a gameday has been cancelled
+	// GamedayCancelledState when a gameday has been cancelled
 	GamedayCancelledState GamedayState = "cancelled"
-	// GamedayScheduledState when a gameday has been completed
+	// GamedayCompletedState when a gameday has been completed
 	GamedayCompletedState GamedayState = "completed"
 )
 
