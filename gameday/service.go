@@ -130,8 +130,8 @@ func (s *Service) ListGamedays() ([]GamedayDTO, error) {
 }
 
 // LookupGamedays responsible to lookup the scheduled and in progress gamedays
-func (s *Service) LookupGamedays() ([]LookupDTO, error) {
-	gamedays, err := s.repo.ListGamedays()
+func (s *Service) LookupGamedays(state []string) ([]LookupDTO, error) {
+	gamedays, err := s.repo.ListGamedaysByState(state)
 	if err != nil {
 		return []LookupDTO{}, errors.Wrap(err, "failed to get gamedays in repository")
 	}

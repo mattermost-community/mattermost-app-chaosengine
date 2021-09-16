@@ -15,6 +15,7 @@ import (
 type App struct {
 	Type    apps.AppType
 	RootURL string `mapstructure:"root_url"`
+	Secret  string
 }
 
 // Options config to set to run the app.
@@ -40,13 +41,14 @@ func init() {
 	viper.SetConfigType("yml")
 
 	defaults := map[string]interface{}{
-		"debug":       false,
+		"debug":       true,
 		"environment": "dev",
 		"address":     ":3000",
 
 		// application settings if http or lambda
 		"app.type":     apps.AppTypeHTTP,
 		"app.root_url": "http://localhost:3000",
+		"app.secret":   "secretkey",
 
 		// database
 		"db.scheme":            "sqlite3",

@@ -35,7 +35,6 @@ func handleCreateTeam(svc *Service, logger logrus.FieldLogger) http.HandlerFunc 
 			transport.WriteBadRequestError(w, err)
 			return
 		}
-
 		jsonString, err := json.Marshal(call.Values)
 		if err != nil {
 			transport.WriteBadRequestError(w, err)
@@ -176,8 +175,17 @@ func handleLookupGamedays(svc *Service, logger logrus.FieldLogger) http.HandlerF
 			return
 		}
 
-		gamedays, err := svc.LookupGamedays()
+		var states []string
+		if strings.Contains(call.Path, "start") {
+			states = append(states, string(GamedayScheduledState))
+		} else if strings.Contains(call.Path, "complete") {
+			states = append(states, string(GamedayInProgressState))
+		} else {
+			states = append(states, string(GamedayScheduledState), string(GamedayInProgressState))
+		}
+		gamedays, err := svc.LookupGamedays(states)
 		if err != nil {
+			logger.WithField("states", states).WithError(err).Error("failed to lookup gamedays by state")
 			transport.WriteBadRequestError(w, err)
 			return
 		}

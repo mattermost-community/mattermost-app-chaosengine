@@ -2,6 +2,7 @@ package gameday
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -25,6 +26,7 @@ type Repository struct {
 // repository
 type GamedayRepository interface {
 	ListGamedays() ([]Gameday, error)
+	ListGamedaysByState(states []string) ([]Gameday, error)
 	CreateGameday(gameday Gameday) (string, error)
 	UpdateGamedayState(gamedayID string, state GamedayState) error
 	CreateTeam(name string) (string, error)
@@ -51,6 +53,24 @@ func (r *Repository) ListGamedays() ([]Gameday, error) {
 	  FROM
 	  gameday INNER JOIN team ON gameday.team_id = team.id
 	  WHERE gameday.state IN ('scheduled', 'in_progress');`
+
+	var gamedays []Gameday
+	if err := r.store.DB.Select(&gamedays, sql); err != nil {
+		return []Gameday{}, errors.Wrap(err, "failed to get gamedays")
+	}
+	return gamedays, nil
+}
+
+// ListGamedaysByState returns the list of gamedays created in the app by the provided state
+func (r *Repository) ListGamedaysByState(states []string) ([]Gameday, error) {
+	sql := `SELECT
+		gameday.*,
+		team.name "team.name"
+	  FROM
+	  gameday INNER JOIN team ON gameday.team_id = team.id
+	  WHERE gameday.state IN (%s);`
+	commaSepState := "'" + strings.Join(states[:], "', '") + "'"
+	sql = fmt.Sprintf(sql, commaSepState)
 
 	var gamedays []Gameday
 	if err := r.store.DB.Select(&gamedays, sql); err != nil {

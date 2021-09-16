@@ -19,9 +19,9 @@ var ErrActingUserMismatch = errors.New("JWT claim doesn't match actingUserID in 
 
 type requestHandler func(http.ResponseWriter, *http.Request, *apps.CallRequest)
 
-func AddRoutes(router *mux.Router, m *apps.Manifest, staticAssets fs.FS, localMode bool) {
+func AddRoutes(router *mux.Router, m *apps.Manifest, staticAssets fs.FS, secretToken string, localMode bool) {
 	router.HandleFunc("/manifest", handleManifest(m))
-	router.HandleFunc("/bindings", decodeRequest(handleBindings, localMode))
+	router.HandleFunc("/bindings", decodeRequest(handleBindings, secretToken, localMode))
 	router.PathPrefix("/static").Handler(http.StripPrefix("/", http.FileServer(http.FS(staticAssets))))
 }
 
@@ -196,7 +196,7 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 	transport.WriteJSON(w, call)
 }
 
-func decodeRequest(f requestHandler, localMode bool) http.HandlerFunc {
+func decodeRequest(f requestHandler, secretToken string, localMode bool) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		data, err := apps.CallRequestFromJSONReader(r.Body)
 		if err != nil {
@@ -205,7 +205,7 @@ func decodeRequest(f requestHandler, localMode bool) http.HandlerFunc {
 		}
 
 		if localMode {
-			claims, err := checkJWT(r)
+			claims, err := checkJWT(r, secretToken)
 			if err != nil {
 				transport.WriteBadRequestError(rw, err)
 				return
@@ -220,7 +220,7 @@ func decodeRequest(f requestHandler, localMode bool) http.HandlerFunc {
 		f(rw, r, nil)
 	}
 }
-func checkJWT(req *http.Request) (*apps.JWTClaims, error) {
+func checkJWT(req *http.Request, secretToken string) (*apps.JWTClaims, error) {
 	authValue := req.Header.Get(apps.OutgoingAuthHeader)
 	if !strings.HasPrefix(authValue, "Bearer ") {
 		return nil, ErrMissingHeader
@@ -232,7 +232,7 @@ func checkJWT(req *http.Request) (*apps.JWTClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("%w: %v", ErrUnexpectedSignMethod, token.Header["alg"])
 		}
-		return []byte("1234"), nil
+		return []byte(secretToken), nil
 	})
 
 	if err != nil {
