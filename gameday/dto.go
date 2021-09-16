@@ -42,7 +42,7 @@ func (c CreateTeamDTO) Validate() error {
 
 // LookupTeamDTO lookup label value data transfer
 // object for team values
-type LookupTeamDTO struct {
+type LookupDTO struct {
 	Label string `json:"label"`
 	Value string `json:"value"`
 }
@@ -51,8 +51,9 @@ type LookupTeamDTO struct {
 // creating a new gameday
 type GamedayDTO struct {
 	Name        string
-	Team        LookupTeamDTO
+	Team        LookupDTO
 	ScheduledAt ScheduledAtTime `json:"schedule_at"`
+	State       GamedayState
 }
 
 // Validate check if the DTO has the required values
@@ -96,4 +97,10 @@ func (ct *ScheduledAtTime) Unix() int64 {
 func (ct *ScheduledAtTime) String() string {
 	t := time.Time(*ct)
 	return fmt.Sprintf("%q", t.Format(timeLayout))
+}
+
+// UpdateGameDayStateDTO the data transfer object for
+// to update the state
+type UpdateGameDayStateDTO struct {
+	ID LookupDTO `json:"id"`
 }

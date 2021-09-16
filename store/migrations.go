@@ -30,6 +30,7 @@ var migrations = []migration{
 				id CHAR(26) PRIMARY KEY,
 				title VARCHAR(32) NOT NULL,
 				team_id CHAR(26) NOT NULL,
+				state CHAR(26) NOT NULL,
 				scheduled_at BIGINT NOT NULL,
 				created_at BIGINT NOT NULL,
 				updated_at BIGINT NOT NULL
@@ -80,6 +81,26 @@ var migrations = []migration{
 		}
 		_, err = e.Exec(`
 			CREATE UNIQUE INDEX gameday_team_user ON team_member (team_id, user_id);
+		`)
+		if err != nil {
+			return err
+		}
+		_, err = e.Exec(`
+			CREATE TABLE gameday_nominee (
+				id CHAR(26) PRIMARY KEY,
+				gameday_id CHAR(26) NOT NULL,
+				member_id CHAR(26) NOT NULL,
+				is_mod BOOLEAN DEFAULT FALSE,
+				is_on_call BOOLEAN DEFAULT FALSE,
+				created_at BIGINT NOT NULL,
+				updated_at BIGINT NOT NULL
+			);
+		`)
+		if err != nil {
+			return err
+		}
+		_, err = e.Exec(`
+			CREATE UNIQUE INDEX gameday_nominee_member ON gameday_nominee (gameday_id, member_id);
 		`)
 		if err != nil {
 			return err

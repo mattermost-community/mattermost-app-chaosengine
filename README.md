@@ -3,10 +3,13 @@ ChaosEngine app nominate randomly a different MoD and On-call person for every G
 
 The Chaos Engine App is integrated in Mattermost and you can create:
 - Chaos Teams create `/chaos-engine team create --name sre --member @spiros`
+- Chaos Teams add another member `/chaos-engine team create --name sre --member @bar`
 - Chaos Teams list `/chaos-engine team list`
 - Chaos Gamedays create `/chaos-engine gameday create --name "Chaos: K8s Node failures" --team sre --schedule-at "2021-25-08 07:00:00"`
-- Chaos Gameday Start `/chaos-engine gameday start --day chaos-august` (pending feature)
-- Chaos Gameday list `/chaos-engine gameday list` (pending feature)
+- Chaos Gameday Start `/chaos-engine gameday start --id nopcyfhsd7fhpf3g1978mibd3w`
+- Chaos Gameday Complete `/chaos-engine gameday complete --id nopcyfhsd7fhpf3g1978mibd3w`
+- Chaos Gameday Cancel `/chaos-engine gameday cancel --id nopcyfhsd7fhpf3g1978mibd3w`
+- Chaos Gameday list `/chaos-engine gameday list`
 
 ## Running
 
@@ -18,6 +21,7 @@ Here are available configuration to run the app:
 | address               | :3000                             | listening address |
 | app.type              | http                              | mattermost app type |
 | app.root_url          | http://localhost:3000             | the root url of the app |
+| app.secret            | secretkey                         | The secret key to install the app in Mattermost and JWT authentication |
 | db.scheme             | http://localhost:3000             | the scheme, supports `sqlite3`, `postgres`, `postgresql`|
 | db.url                | sqlite3://engine.db"              | the database URL which can be sqlite DB or Postgres DSN |
 | db.idle_conns         | 2                                 | the number of idle connections |

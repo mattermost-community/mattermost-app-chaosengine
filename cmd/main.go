@@ -70,7 +70,7 @@ func main() {
 	// mattermost App settings + Routes
 	manifest.HTTPRootURL = cfg.App.RootURL
 	manifest.AppType = cfg.App.Type
-	mattermost.AddRoutes(r, &manifest, staticAssets, cfg.Debug)
+	mattermost.AddRoutes(r, &manifest, staticAssets, cfg.App.Secret, cfg.Debug)
 
 	// Gameday Routes
 	gamedayRepo := gameday.NewRepository(store)
