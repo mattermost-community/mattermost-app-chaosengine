@@ -32,7 +32,7 @@ func main() {
 	// Load config
 	cfg, err := config.Load(logger)
 	if err != nil {
-		log.WithError(err).Error("failed to load config")
+		logger.WithError(err).Error("failed to load config")
 		os.Exit(1)
 		return
 	}
@@ -45,21 +45,21 @@ func main() {
 	var manifest apps.Manifest
 	err = json.Unmarshal(manifestSource, &manifest)
 	if err != nil {
-		log.WithError(err).Error("failed to load manfest")
+		logger.WithError(err).Error("failed to load manfest")
 		os.Exit(1)
 		return
 	}
 
 	store, err := store.New(cfg.Database, logger)
 	if err != nil {
-		log.WithError(err).Error("failed to connect to Database")
+		logger.WithError(err).Error("failed to connect to Database")
 		os.Exit(1)
 		return
 	}
 	// Run migrations on startup
 	err = store.Migrate()
 	if err != nil {
-		log.WithError(err).Error("failed to run migrations")
+		logger.WithError(err).Error("failed to run migrations")
 		os.Exit(1)
 		return
 	}

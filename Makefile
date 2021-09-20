@@ -1,35 +1,46 @@
 # Binary
 TAG ?= dev-local
-LDFLAGS := -ldflags "-s -w -X main.BuildVersion=${TAG} -X main.BuildTime=$(shell date +%s)"
-################################################################################
+BUILD_HASH := $(shell git rev-parse HEAD)
+BUILD_TIME := $(shell date -u +%Y%m%d.%H%M%S)
+LDFLAGS := '-s -w -X main.BuildVersion=${BUILD_HASH} -X main.BuildTime=${BUILD_TIME} -linkmode external -extldflags "-static"'
 
-# Golang
+## Golang
 GO ?= go
 GO_TEST_FLAGS ?= -race
 
-# Binaries.
+## Binaries.
 TOOLS_BIN_DIR := $(abspath bin)
 
 OUTDATED_VER := master
 OUTDATED_BIN := go-mod-outdated
 OUTDATED_GEN := $(TOOLS_BIN_DIR)/$(OUTDATED_BIN)
+
+## Docker
+CHAOS_ENGINE_IMAGE ?= mattermost/mattermost-app-chaosengine:test
+
+## Docker Build Versions
+DOCKER_BUILD_IMAGE = golang:1.16.8
+DOCKER_BASE_IMAGE = alpine:3.14.2
 ################################################################################
 
 .PHONY: all
 ## all: builds and runs the service
 all: run
 
+.PHONY: build-image
+## build-image: builds the docker image
+build-image:
+	@echo Building Chaos Engine Docker Image
+	docker build \
+	--build-arg DOCKER_BUILD_IMAGE=$(DOCKER_BUILD_IMAGE) \
+	--build-arg DOCKER_BASE_IMAGE=$(DOCKER_BASE_IMAGE) \
+	. -f build/Dockerfile -t $(CHAOS_ENGINE_IMAGE)
+
 .PHONY: build-linux
 ## build-linux: builds linux binary
 build-linux:
 	@echo Building binary for linux
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build ${LDFLAGS} -o build/_output/bin/mattermost-app-chaosengine-linux-amd64 ./cmd
-
-.PHONY: build-mac
-## build-mac: builds mac binary
-build-mac:
-	@echo Building binary for mac
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 $(GO) build ${LDFLAGS} -o build/_output/bin/mattermost-app-chaosengine-darwin-amd64 ./cmd
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -ldflags $(LDFLAGS) -gcflags all=-trimpath=$(PWD) -asmflags all=-trimpath=$(PWD) -a -installsuffix cgo -o build/_output/bin/mattermost-app-chaosengine-linux-amd64 ./cmd
 
 .PHONY: build
 ## build: build the executable
@@ -54,6 +65,18 @@ govet:
 	@echo Running govet
 	$(GO) vet ./...
 	@echo Govet success
+
+.PHONY: push-docker-pr
+## push-docker-pr: Pushes the Docker image for the particular PR
+push-docker-pr:
+	@echo Pushing Docker Image for pull request
+	sh -c "./scripts/push_docker_pr.sh"
+
+.PHONY: push-docker
+## push-docker: Pushes the Docker image 
+push-docker:
+	@echo Pushing Docker Image
+	sh -c "./scripts/push_docker.sh"
 
 .PHONY: run
 ## run: runs the service

@@ -18,8 +18,7 @@
 .history
 
 # Bin
-build/*
-bin/
+build/_output/*
 dist/
 *.zip
 
