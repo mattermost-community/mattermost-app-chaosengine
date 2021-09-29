@@ -8,13 +8,13 @@ LDFLAGS := '-s -w -X main.BuildVersion=${BUILD_HASH} -X main.BuildTime=${BUILD_T
 GO ?= go
 GO_TEST_FLAGS ?= -race
 
-GOLANGCILINT_VER := v1.41.1
-GOLANGCILINT_BIN := golangci-lint
-GOLANGCILINT_GEN := $(TOOLS_BIN_DIR)/$(GOLANGCILINT_BIN)
-
 ## Binaries.
 GO_INSTALL = ./scripts/go_install.sh
 TOOLS_BIN_DIR := $(abspath bin)
+
+GOLANGCILINT_VER := v1.41.1
+GOLANGCILINT_BIN := golangci-lint
+GOLANGCILINT_GEN := $(TOOLS_BIN_DIR)/$(GOLANGCILINT_BIN)
 
 OUTDATED_VER := master
 OUTDATED_BIN := go-mod-outdated
@@ -86,10 +86,6 @@ push-docker-pr:
 ## lint: Run golangci-lint on codebase
 lint: $(GOLANGCILINT_GEN)
 	@echo Running lint with GolangCI
-	@if ! [ -x "$$(command -v golangci-lint)" ]; then \
-		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
-		exit 1; \
-	fi; \
 	$(GOLANGCILINT_GEN)  run ./...
 
 .PHONY: push-docker
