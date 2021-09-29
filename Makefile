@@ -9,6 +9,7 @@ GO ?= go
 GO_TEST_FLAGS ?= -race
 
 ## Binaries.
+GO_INSTALL = ./scripts/go_install.sh
 TOOLS_BIN_DIR := $(abspath bin)
 
 OUTDATED_VER := master
@@ -79,7 +80,7 @@ push-docker-pr:
 
 .PHONY: lint
 ## lint: Run golangci-lint on codebase
-lint: setup
+lint: $(GOLANGCILINT_GEN)
 	@echo Running lint with GolangCI
 	@if ! [ -x "$$(command -v golangci-lint)" ]; then \
 		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
@@ -110,6 +111,7 @@ test:
 .PHONY: setup
 setup: # Installs lint for Linux only
 	@echo Install golang-ci
+	@echo ${GOPATH}
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.41.1
 
 .PHONY: help
@@ -117,3 +119,13 @@ setup: # Installs lint for Linux only
 help:
 	@echo "Usage:"
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
+
+## --------------------------------------
+## Tooling Binaries
+## --------------------------------------
+
+$(OUTDATED_GEN): ## Build go-mod-outdated.
+	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) github.com/psampaz/go-mod-outdated $(OUTDATED_BIN) $(OUTDATED_VER)
+
+$(GOLANGCILINT_GEN): ## Build golang-ci lint.
+	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) github.com/golangci/golangci-lint/cmd/golangci-lint $(GOLANGCILINT_BIN) $(GOLANGCILINT_VER)
