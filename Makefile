@@ -59,6 +59,11 @@ check-modules: $(OUTDATED_GEN) #
 check-style: govet lint
 	@echo Checking for style guide compliance
 
+.PHONY: clean
+## clean: deletes all
+clean:
+	rm -rf build/_output/bin/
+
 .PHONY: vet
 ## govet: Runs govet against all packages.
 govet:
@@ -71,6 +76,18 @@ govet:
 push-docker-pr:
 	@echo Pushing Docker Image for pull request
 	sh -c "./scripts/push_docker_pr.sh"
+
+.PHONY: lint
+## lint: Run golangci-lint on codebase
+lint: setup
+	@echo Running lint with GolangCI
+	@if ! [ -x "$$(command -v golangci-lint)" ]; then \
+		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
+		exit 1; \
+	fi; \
+
+	@echo Running golangci-lint
+	golangci-lint run ./...
 
 .PHONY: push-docker
 ## push-docker: Pushes the Docker image 
@@ -90,22 +107,10 @@ test:
 	@echo Running tests
 	$(GO) test $(GO_TEST_FLAGS) ./...
 
-.PHONY: lint
-## lint: Run golangci-lint on codebase
-lint:
-	@echo Running lint with GolangCI
-	@if ! [ -x "$$(command -v golangci-lint)" ]; then \
-		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
-		exit 1; \
-	fi; \
-
-	@echo Running golangci-lint
-	golangci-lint run ./...
-
-.PHONY: clean
-## clean: deletes all
-clean:
-	rm -rf build/_output/bin/
+.PHONY: setup
+setup: # Installs lint for Linux only
+	@echo Install golang-ci
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.41.1
 
 .PHONY: help
 ## help: prints this help message
