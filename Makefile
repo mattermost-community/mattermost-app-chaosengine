@@ -9,7 +9,12 @@ GO ?= go
 GO_TEST_FLAGS ?= -race
 
 ## Binaries.
+GO_INSTALL = ./scripts/go_install.sh
 TOOLS_BIN_DIR := $(abspath bin)
+
+GOLANGCILINT_VER := v1.41.1
+GOLANGCILINT_BIN := golangci-lint
+GOLANGCILINT_GEN := $(TOOLS_BIN_DIR)/$(GOLANGCILINT_BIN)
 
 OUTDATED_VER := master
 OUTDATED_BIN := go-mod-outdated
@@ -59,6 +64,11 @@ check-modules: $(OUTDATED_GEN) #
 check-style: govet lint
 	@echo Checking for style guide compliance
 
+.PHONY: clean
+## clean: deletes all
+clean:
+	rm -rf build/_output/bin/
+
 .PHONY: vet
 ## govet: Runs govet against all packages.
 govet:
@@ -71,6 +81,12 @@ govet:
 push-docker-pr:
 	@echo Pushing Docker Image for pull request
 	sh -c "./scripts/push_docker_pr.sh"
+
+.PHONY: lint
+## lint: Run golangci-lint on codebase
+lint: $(GOLANGCILINT_GEN)
+	@echo Running lint with GolangCI
+	$(GOLANGCILINT_GEN)  run ./...
 
 .PHONY: push-docker
 ## push-docker: Pushes the Docker image 
@@ -90,25 +106,18 @@ test:
 	@echo Running tests
 	$(GO) test $(GO_TEST_FLAGS) ./...
 
-.PHONY: lint
-## lint: Run golangci-lint on codebase
-lint:
-	@echo Running lint with GolangCI
-	@if ! [ -x "$$(command -v golangci-lint)" ]; then \
-		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
-		exit 1; \
-	fi; \
-
-	@echo Running golangci-lint
-	golangci-lint run ./...
-
-.PHONY: clean
-## clean: deletes all
-clean:
-	rm -rf build/_output/bin/
-
 .PHONY: help
 ## help: prints this help message
 help:
 	@echo "Usage:"
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
+
+## --------------------------------------
+## Tooling Binaries
+## --------------------------------------
+
+$(OUTDATED_GEN): ## Build go-mod-outdated.
+	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) github.com/psampaz/go-mod-outdated $(OUTDATED_BIN) $(OUTDATED_VER)
+
+$(GOLANGCILINT_GEN): ## Build golang-ci lint.
+	GOBIN=$(TOOLS_BIN_DIR) $(GO_INSTALL) github.com/golangci/golangci-lint/cmd/golangci-lint $(GOLANGCILINT_BIN) $(GOLANGCILINT_VER)
