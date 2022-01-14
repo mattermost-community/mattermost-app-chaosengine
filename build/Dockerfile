@@ -29,7 +29,7 @@ ENV CHAOS=/chaos/mattermost-app-chaosengine \
     CHAOS_DIR=/chaos
 
 RUN apk update && apk add libc6-compat && apk add ca-certificates
-COPY --from=build /opt/chaosengine/dist/mattermost-app-chaosengine /chaos/mattermost-app-chaosengine
+COPY --from=build /opt/chaosengine/build/_output/bin/mattermost-app-chaosengine-linux-amd64 /chaos/mattermost-app-chaosengine
 COPY --from=build /opt/chaosengine/build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
 
