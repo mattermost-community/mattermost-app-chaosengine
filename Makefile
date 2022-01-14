@@ -45,13 +45,13 @@ build-image:
 ## build-linux: builds linux binary
 build-linux:
 	@echo Building binary for linux
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -ldflags $(LDFLAGS) -gcflags all=-trimpath=$(PWD) -asmflags all=-trimpath=$(PWD) -a -installsuffix cgo -o build/_output/bin/mattermost-app-chaosengine-linux-amd64 ./cmd
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -ldflags $(LDFLAGS) -gcflags all=-trimpath=$(PWD) -asmflags all=-trimpath=$(PWD) -a -installsuffix cgo -o dist/mattermost-app-chaosengine-linux ./cmd
 
 .PHONY: build
 ## build: build the executable
 build:
 	@echo Building for local use only
-	$(GO) build -o build/_output/bin/mattermost-app-chaosengine ./cmd
+	$(GO) build -o dist/mattermost-app-chaosengine ./cmd
 
 .PHONY: check-modules
 ## check-modules: Check outdated modules
@@ -67,12 +67,15 @@ check-style: govet lint
 .PHONY: clean
 ## clean: deletes all
 clean:
-	rm -rf build/_output/bin/
+	rm -rf dist
 
 .PHONY: dist-aws
 ## dist-aws: creates the bundle file for AWS Lambda deployments
-dist-aws:
-	cp -r cmd/static dist; cp cmd/manifest.json dist/; cd dist/; zip -qr go-function mattermost-app-servicenow; zip -r bundle.zip go-function.zip manifest.json static/
+dist-aws: build
+	@echo Building dist for AWS Lambda
+	cp -r cmd/static dist
+	cp cmd/manifest.json dist/
+	cd dist/; zip -qr go-function mattermost-app-chaosengine zip -r bundle.zip mattermost-app-chaosengine.zip manifest.json static/
 
 .PHONY: vet
 ## govet: Runs govet against all packages.
