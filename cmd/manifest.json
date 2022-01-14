@@ -10,7 +10,7 @@
     "aws_lambda": [
         {
             "path": "/",
-            "name": "chaos-engine",
+            "name": "go-function",
             "handler": "mattermost-app-chaosengine",
             "runtime": "go1.x"
         }
