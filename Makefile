@@ -69,6 +69,11 @@ check-style: govet lint
 clean:
 	rm -rf build/_output/bin/
 
+.PHONY: dist-aws
+## dist-aws: creates the bundle file for AWS Lambda deployments
+dist-aws:
+	cp -r cmd/static dist; cp cmd/manifest.json dist/; cd dist/; zip -qr go-function mattermost-app-servicenow; zip -r bundle.zip go-function.zip manifest.json static/
+
 .PHONY: vet
 ## govet: Runs govet against all packages.
 govet:

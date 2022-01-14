@@ -4,6 +4,8 @@ go 1.16
 
 require (
 	github.com/Masterminds/squirrel v1.5.0
+	github.com/aws/aws-lambda-go v1.19.1
+	github.com/awslabs/aws-lambda-go-api-proxy v0.12.0
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.8.0

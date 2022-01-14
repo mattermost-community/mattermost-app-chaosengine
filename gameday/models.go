@@ -106,6 +106,9 @@ type GamedayNominee struct {
 
 // getMarkdown for team members
 func getMarkdown(members []TeamMember) md.MD {
+	if len(members) == 0 {
+		return md.MD("There aren't any available GameDays")
+	}
 	txt := "| Team | Members | \n"
 	txt += "| :-- |:-- |\n"
 

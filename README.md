@@ -62,7 +62,7 @@ db:
 An example with environment variables:
 ```bash
 CHAOS_ENGINE_DEBUG=true
-CHAOS_ENGINE_ADDRES=":3000"
+CHAOS_ENGINE_ADDRESS=":3000"
 CHAOS_ENGINE_APP_TYPE="http"
 CHAOS_ENGINE_DB_SCHEME="sqlite3"
 ```

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-app-chaosengine/config"
 	"github.com/mattermost/mattermost-app-chaosengine/gameday"
@@ -68,7 +70,9 @@ func main() {
 	r.Use(logRequest)
 
 	// mattermost App settings + Routes
-	manifest.HTTPRootURL = cfg.App.RootURL
+	if cfg.App.Type == apps.AppTypeHTTP {
+		manifest.HTTPRootURL = cfg.App.RootURL
+	}
 	manifest.AppType = cfg.App.Type
 	mattermost.AddRoutes(r, &manifest, staticAssets, cfg.App.Secret, cfg.Debug)
 
@@ -77,21 +81,7 @@ func main() {
 	gamedaySvc := gameday.NewService(gamedayRepo)
 	gameday.AddRoutes(r, gamedaySvc, logger)
 
-	httpListener, err := net.Listen("tcp", cfg.ListenAddress)
-	if err != nil {
-		logger.WithError(err).Errorf("failed to listen in %s", cfg.ListenAddress)
-		os.Exit(1)
-	}
-
-	var g group.Group
-	g.Add(func() error {
-		logger.WithField("listen", cfg.ListenAddress).Info("Server started")
-		return http.Serve(httpListener, r)
-	}, func(error) {
-		httpListener.Close()
-	})
-
-	logger.WithError(g.Run()).Error("exit")
+	startApp(cfg, r)
 }
 
 func logRequest(next http.Handler) http.Handler {
@@ -101,4 +91,26 @@ func logRequest(next http.Handler) http.Handler {
 			Info("received HTTP request")
 		next.ServeHTTP(w, r)
 	})
+}
+
+func startApp(cfg config.Options, r *mux.Router) {
+	if cfg.App.Type == apps.AppTypeHTTP {
+		httpListener, err := net.Listen("tcp", cfg.ListenAddress)
+		if err != nil {
+			logger.WithError(err).Errorf("failed to listen in %s", cfg.ListenAddress)
+			os.Exit(1)
+		}
+		var g group.Group
+		g.Add(func() error {
+			logger.WithField("listen", cfg.ListenAddress).Info("Server started")
+			return http.Serve(httpListener, r)
+		}, func(error) {
+			httpListener.Close()
+		})
+
+		logger.WithError(g.Run()).Error("exit")
+		return
+	}
+
+	lambda.Start(httpadapter.New(r).Proxy)
 }
