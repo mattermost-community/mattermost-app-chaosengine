@@ -69,6 +69,15 @@ check-style: govet lint
 clean:
 	rm -rf build/_output/bin/
 
+.PHONY: dist
+## dist-aws: creates the bundle file for AWS Lambda deployments
+dist: build-linux
+	@echo Building dist for AWS Lambda
+	cp -r cmd/static dist
+	cp cmd/manifest.json dist/
+	cp build/_output/bin/mattermost-app-chaosengine-linux-amd64 dist/mattermost-app-chaosengine
+	cd dist/; zip -qr go-function mattermost-app-chaosengine; zip -r bundle.zip go-function.zip manifest.json static
+
 .PHONY: vet
 ## govet: Runs govet against all packages.
 govet:

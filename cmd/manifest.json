@@ -1,12 +1,20 @@
 {
     "app_id": "chaos-engine",
-    "app_type": "http",
+    "app_type": "aws_lambda",
     "version": "0.1.0",
     "display_name": "ChaosEngine",
     "description": "Chaos Engine to schedule GameDays with team member from Mattermost",
     "homepage_url": "https://github.com/mattermost/mattermost-app-chaos-engine",
     "root_url": "",
     "icon": "icon.png",
+    "aws_lambda": [
+        {
+            "path": "/",
+            "name": "go-function",
+            "handler": "mattermost-app-chaosengine",
+            "runtime": "go1.x"
+        }
+    ],
     "requested_permissions": [
         "act_as_bot"
     ],

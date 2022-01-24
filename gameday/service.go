@@ -103,10 +103,13 @@ func (s *Service) CreateGameday(ctx *apps.Context, dto GamedayDTO) error {
 	if _, err := s.repo.CreateNominee(GamedayNominee{GamedayID: gamedayID, MemberID: mod.ID, IsMasterOfDisaster: true}); err != nil {
 		return errors.Wrapf(err, "failed to nominate a team member for MOD for GamedayID: %s and MemberID: %s", gamedayID, mod.ID)
 	}
+	mmclient.AsBot(ctx).DM(mod.UserID, fmt.Sprintf("You are the **Master of Disaster** for gameday: _**%s**_ scheduled at: _**%s**_", gameday.Title, dto.ScheduledAt.String()))
+
 	oncall := shuffleAndPickMember(filteredMembers)
 	if _, err := s.repo.CreateNominee(GamedayNominee{GamedayID: gamedayID, MemberID: oncall.ID, IsOnCall: true}); err != nil {
 		return errors.Wrapf(err, "failed to nominate a team member for OnCall for GamedayID: %s and MemberID: %s", gamedayID, mod.ID)
 	}
+	mmclient.AsBot(ctx).DM(oncall.UserID, fmt.Sprintf("You are **On-Call** for gameday: _**%s**_ scheduled at: _**%s**_", gameday.Title, dto.ScheduledAt.String()))
 	return nil
 }
 
