@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-app-chaosengine/transport"
+	"github.com/mattermost/mattermost-app-chaosengine/config"
+	"github.com/mattermost/mattermost-app-chaosengine/store"
 	"github.com/mattermost/mattermost-plugin-apps/apps"
 	"github.com/mattermost/mattermost-plugin-apps/apps/mmclient"
 	"github.com/mattermost/mattermost-plugin-apps/utils/md"
@@ -26,6 +29,98 @@ func AddRoutes(router *mux.Router, svc *Service, logger logrus.FieldLogger) {
 	router.HandleFunc("/api/v1/gamedays/complete/lookup", handleLookupGamedays(svc, logger))
 	router.HandleFunc("/api/v1/gamedays/cancel/submit", handleCancelGameDay(svc, logger))
 	router.HandleFunc("/api/v1/gamedays/cancel/lookup", handleLookupGamedays(svc, logger))
+}
+
+func HandleConfigure(router *mux.Router, logger logrus.FieldLogger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		call, err := apps.CallRequestFromJSONReader(r.Body)
+		if err != nil {
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+		jsonString, err := json.Marshal(call.Values)
+
+		if err != nil {
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+
+		var dto ConfigureDTO
+		if err := json.Unmarshal(jsonString, &dto); err != nil {
+			logger.WithError(err).Error("failed to unmarshal json")
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+
+		if err := dto.Validate(); err != nil {
+			logger.WithError(err).Error("failed to validate request")
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+
+		cfg, error := config.SetDatabaseConfig(dto.Scheme, dto.Url, logger)
+		if error != nil {
+			logger.WithError(err).Error("failed to load config")
+			transport.WriteBadRequestError(w, err)
+			return
+		}
+
+		store, err := store.New(cfg.Database, logger)
+		if err != nil {
+			logger.WithError(err).Error("failed to connect to Database")
+			os.Exit(1)
+			return
+		}
+		// Run migrations on startup
+		err = store.Migrate()
+		if err != nil {
+			logger.WithError(err).Error("failed to run migrations")
+			os.Exit(1)
+			return
+		}
+
+		gamedayRepo := NewRepository(store)
+		gamedaySvc := NewService(gamedayRepo)
+		AddRoutes(router, gamedaySvc, logger)
+
+		msg := fmt.Sprintf("App Configured with Driver: **%s**", strings.ToUpper(dto.Scheme))
+		mmclient.AsBot(call.Context).DM(dto.Scheme, msg)
+
+		transport.WriteJSON(w, apps.CallResponse{
+			Type:     apps.CallResponseTypeOK,
+			Markdown: md.MD("App Configured"),
+		})
+	}
+}
+
+func HandleConfigureForm(logger logrus.FieldLogger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		transport.WriteJSON(w, apps.CallResponse{
+			Type:     apps.CallResponseTypeForm,
+			Form: &apps.Form{
+				Fields: []*apps.Field{
+					{
+						Type:       "text",
+						Name:       "scheme",
+						Label:      "scheme",
+						Description: "sqlite3 | postgres",
+						IsRequired: true,
+					},
+					{
+						Type:        "text",
+						Name:        "url",
+						Label:       "url",
+						Description: "Database connection string",
+						IsRequired:  true,
+					},
+				},
+				Call: &apps.Call{
+					Path: "/api/v1/configure",
+				},
+			},
+		})
+	}
 }
 
 func handleCreateTeam(svc *Service, logger logrus.FieldLogger) http.HandlerFunc {
