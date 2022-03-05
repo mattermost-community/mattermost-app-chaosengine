@@ -51,8 +51,6 @@ func init() {
 		"app.secret":   "secretkey",
 
 		// database
-		"db.scheme":            "sqlite3",
-		"db.url":               "sqlite3://engine.db",
 		"db.rds.secret_name":   nil, // to be supported
 		"db.idle_conns":        2,
 		"db.max_open_conns":    1,
@@ -78,4 +76,15 @@ func Load(logger logrus.FieldLogger) (Options, error) {
 	}
 
 	return cfg, nil
+}
+
+func SetDatabaseConfig(scheme string, url string, logger logrus.FieldLogger) (Options, error) {
+
+	viper.Set("db.scheme", scheme)
+	viper.Set("db.url", url)
+
+	viper.WriteConfig() 
+	viper.SafeWriteConfig()
+
+	return Load(logger)
 }
