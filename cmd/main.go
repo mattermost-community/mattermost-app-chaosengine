@@ -13,7 +13,6 @@ import (
 	"github.com/mattermost/mattermost-app-chaosengine/config"
 	"github.com/mattermost/mattermost-app-chaosengine/gameday"
 	"github.com/mattermost/mattermost-app-chaosengine/mattermost"
-	"github.com/mattermost/mattermost-app-chaosengine/store"
 	"github.com/mattermost/mattermost-plugin-apps/apps"
 	"github.com/oklog/oklog/pkg/group"
 	log "github.com/sirupsen/logrus"

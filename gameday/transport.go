@@ -94,7 +94,7 @@ func HandleConfigure(router *mux.Router, logger logrus.FieldLogger) http.Handler
 }
 
 func HandleConfigureForm(logger logrus.FieldLogger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 
 		transport.WriteJSON(w, apps.CallResponse{
 			Type:     apps.CallResponseTypeForm,
