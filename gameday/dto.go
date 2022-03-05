@@ -7,6 +7,24 @@ import (
 	"time"
 )
 
+// ConfigureDTO the data transfer object for
+// configure application database
+type ConfigureDTO struct {
+	Scheme string `json:"scheme"`
+	Url string `json:"url"`
+}
+
+// Validate check if the DTO has the required values
+func (c ConfigureDTO) Validate() error {
+	if c.Scheme == "" {
+		return errors.New("failed: missing required field `scheme`")
+	}
+	if c.Url == "" {
+		return errors.New("failed: missing required field `url`")
+	}
+	return nil
+}
+
 // MemberDTO the data transfer object for
 // of a member which matches MM user
 type MemberDTO struct {

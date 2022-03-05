@@ -36,7 +36,18 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 		Label:       "chaos-engine",
 		Icon:        "icon.png",
 		Description: "Chaos engine will help teams to run Chaos Gamedays",
-		Hint:        "[gameday team]",
+		Hint:        "[configure gameday team]",
+	}
+
+	configureCommand := &apps.Binding{
+		Location: "configure",
+		Label: "configure",
+		Icon: "icon.png",
+		Description: "Initial configuration for Chaos Gamedays",
+		Hint: "[configure]",
+		Call: &apps.Call{
+			Path: "/api/v1/configure",
+		},
 	}
 
 	gamedayCommand := &apps.Binding{
@@ -179,6 +190,7 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 
 	baseCommand.Bindings = append(baseCommand.Bindings, gamedayCommand)
 	baseCommand.Bindings = append(baseCommand.Bindings, teamCommand)
+	baseCommand.Bindings = append(baseCommand.Bindings, configureCommand)
 
 	commands := &apps.Binding{
 		Location: apps.LocationCommand,
