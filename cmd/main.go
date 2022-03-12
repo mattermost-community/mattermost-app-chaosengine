@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-app-chaosengine/config"
 	"github.com/mattermost/mattermost-app-chaosengine/gameday"
+	"github.com/mattermost/mattermost-app-chaosengine/store"
 	"github.com/mattermost/mattermost-app-chaosengine/mattermost"
 	"github.com/mattermost/mattermost-plugin-apps/apps"
 	"github.com/oklog/oklog/pkg/group"
@@ -61,10 +62,30 @@ func main() {
 	}
 	manifest.AppType = cfg.App.Type
 	mattermost.AddRoutes(r, &manifest, staticAssets, cfg.App.Secret, cfg.Debug)
+	
+	if cfg.Database.Scheme != "" && cfg.Database.URL != "" {
+		store, err := store.New(cfg.Database, logger)
+		if err != nil {
+			logger.WithError(err).Error("failed to connect to Database")
+			os.Exit(1)
+			return
+		}
+		// Run migrations on startup
+		err = store.Migrate()
+		if err != nil {
+			logger.WithError(err).Error("failed to run migrations")
+			os.Exit(1)
+			return
+		}
 
-	//Confingure Routes
-	r.HandleFunc("/api/v1/configure/form", gameday.HandleConfigureForm(logger))
-	r.HandleFunc("/api/v1/configure/submit", gameday.HandleConfigure(r, logger))
+		gamedayRepo := gameday.NewRepository(store)
+		gamedaySvc := gameday.NewService(gamedayRepo)
+		gameday.AddRoutes(r, gamedaySvc, logger)
+	} else {
+		//Configure Routes
+		r.HandleFunc("/api/v1/configure/form", gameday.HandleConfigureForm(logger))
+		r.HandleFunc("/api/v1/configure/submit", gameday.HandleConfigure(r, logger))
+	}
 
 	startApp(cfg, r)
 }

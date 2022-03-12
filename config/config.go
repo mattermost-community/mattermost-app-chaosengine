@@ -37,7 +37,7 @@ func init() {
 	viper.SetEnvPrefix("chaos_engine")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AddConfigPath(".")
-	viper.SetConfigFile("config")
+	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
 
 	defaults := map[string]interface{}{
@@ -47,8 +47,8 @@ func init() {
 
 		// application settings if http or lambda
 		"app.type":     apps.AppTypeHTTP,
-		// "app.root_url": "http://localhost:3000",
-		"app.root_url": "http://d966-62-216-200-209.ngrok.io",
+		"app.root_url": "http://localhost:3000",
+		// "app.root_url": "http://d966-62-216-200-209.ngrok.io",
 		"app.secret":   "secretkey",
 
 		// database
@@ -66,7 +66,7 @@ func init() {
 // Load will load the necessary config
 func Load(logger logrus.FieldLogger) (Options, error) {
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Warn("unable to find config.yml. loading config from environment variables")
+		logger.Warn(err)
 	}
 	var cfg Options
 	if err := viper.Unmarshal(&cfg); err != nil {
@@ -83,6 +83,6 @@ func SetDatabaseConfig(scheme string, url string, logger logrus.FieldLogger) (Op
 
 	viper.Set("db.scheme", scheme)
 	viper.Set("db.url", url)
-	
+
 	return Load(logger)
 }

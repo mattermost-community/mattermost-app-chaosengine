@@ -19,6 +19,11 @@ func (c ConfigureDTO) Validate() error {
 	if c.Scheme == "" {
 		return errors.New("failed: missing required field `scheme`")
 	}
+
+	if c.Scheme != "sqlite" && c.Scheme != "sqlite3" && c.Scheme != "postgresql" && c.Scheme != "postgres" {
+		return errors.New("failed: given value for `scheme` is not supported")
+	}
+
 	if c.Url == "" {
 		return errors.New("failed: missing required field `url`")
 	}
