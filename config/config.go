@@ -83,7 +83,7 @@ func SetDatabaseConfig(scheme string, url string, logger logrus.FieldLogger) (Op
 	viper.Set("db.scheme", scheme)
 	viper.Set("db.url", url)
 
-	viper.WriteConfig() 
+	viper.WriteConfig()
 	viper.SafeWriteConfig()
 
 	return Load(logger)

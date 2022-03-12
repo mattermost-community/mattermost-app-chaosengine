@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-app-chaosengine/transport"
 	"github.com/mattermost/mattermost-app-chaosengine/config"
 	"github.com/mattermost/mattermost-app-chaosengine/store"
+	"github.com/mattermost/mattermost-app-chaosengine/transport"
 	"github.com/mattermost/mattermost-plugin-apps/apps"
 	"github.com/mattermost/mattermost-plugin-apps/apps/mmclient"
 	"github.com/mattermost/mattermost-plugin-apps/utils/md"
@@ -97,15 +97,15 @@ func HandleConfigureForm(logger logrus.FieldLogger) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
 
 		transport.WriteJSON(w, apps.CallResponse{
-			Type:     apps.CallResponseTypeForm,
+			Type: apps.CallResponseTypeForm,
 			Form: &apps.Form{
 				Fields: []*apps.Field{
 					{
-						Type:       "text",
-						Name:       "scheme",
-						Label:      "scheme",
+						Type:        "text",
+						Name:        "scheme",
+						Label:       "scheme",
 						Description: "sqlite3 | postgres",
-						IsRequired: true,
+						IsRequired:  true,
 					},
 					{
 						Type:        "text",

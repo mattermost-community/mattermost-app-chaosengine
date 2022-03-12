@@ -11,7 +11,7 @@ import (
 // configure application database
 type ConfigureDTO struct {
 	Scheme string `json:"scheme"`
-	Url string `json:"url"`
+	Url    string `json:"url"`
 }
 
 // Validate check if the DTO has the required values

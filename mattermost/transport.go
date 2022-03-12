@@ -40,11 +40,11 @@ func handleBindings(w http.ResponseWriter, r *http.Request, c *apps.CallRequest)
 	}
 
 	configureCommand := &apps.Binding{
-		Location: "configure",
-		Label: "configure",
-		Icon: "icon.png",
+		Location:    "configure",
+		Label:       "configure",
+		Icon:        "icon.png",
 		Description: "Initial configuration for Chaos Gamedays",
-		Hint: "[configure]",
+		Hint:        "[configure]",
 		Call: &apps.Call{
 			Path: "/api/v1/configure",
 		},
