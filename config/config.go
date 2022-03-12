@@ -47,7 +47,8 @@ func init() {
 
 		// application settings if http or lambda
 		"app.type":     apps.AppTypeHTTP,
-		"app.root_url": "http://localhost:3000",
+		// "app.root_url": "http://localhost:3000",
+		"app.root_url": "http://d966-62-216-200-209.ngrok.io",
 		"app.secret":   "secretkey",
 
 		// database
@@ -82,9 +83,6 @@ func SetDatabaseConfig(scheme string, url string, logger logrus.FieldLogger) (Op
 
 	viper.Set("db.scheme", scheme)
 	viper.Set("db.url", url)
-
-	viper.WriteConfig()
-	viper.SafeWriteConfig()
-
+	
 	return Load(logger)
 }
