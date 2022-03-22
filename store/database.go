@@ -32,6 +32,13 @@ type Config struct {
 	MaxConnLifetime time.Duration `mapstructure:"max_conn_lifetime"`
 }
 
+func (c *Config) IsEmpty() bool {
+	if c.Scheme == "" || c.URL == "" {
+		return true
+	}
+	return false
+}
+
 var (
 	// errDBSchemeRequired the type of the database
 	errDBSchemeRequired = errors.New("failed database scheme is required")

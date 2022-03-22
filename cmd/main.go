@@ -63,7 +63,7 @@ func main() {
 	manifest.AppType = cfg.App.Type
 	mattermost.AddRoutes(r, &manifest, staticAssets, cfg.App.Secret, cfg.Debug)
 
-	if cfg.Database.Scheme != "" && cfg.Database.URL != "" {
+	if !cfg.Database.IsEmpty() {
 		store, err := store.New(cfg.Database, logger)
 		if err != nil {
 			logger.WithError(err).Error("failed to connect to Database")

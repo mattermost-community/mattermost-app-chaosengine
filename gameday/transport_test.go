@@ -31,11 +31,8 @@ func TestHandleConfigureForm(t *testing.T) {
 	handler := http.HandlerFunc(HandleConfigureForm(logger))
 	handler.ServeHTTP(w, req)
 
-	logger.Info("w.Body")
-
-	if status := w.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusOK)
 	}
 }
 
@@ -54,10 +51,7 @@ func TestHandleConfigure(t *testing.T) {
 	handler := http.HandlerFunc(HandleConfigure(router, logger))
 	handler.ServeHTTP(w, req)
 
-	logger.Info(w.Body)
-
-	if status := w.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", w.Code, http.StatusOK)
 	}
 }
