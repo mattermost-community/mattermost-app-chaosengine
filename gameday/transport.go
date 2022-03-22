@@ -51,9 +51,6 @@ func HandleConfigure(router *mux.Router, logger logrus.FieldLogger) http.Handler
 			transport.WriteBadRequestError(w, err)
 			return
 		}
-
-		logger.Info(dto)
-
 		if err := dto.Validate(); err != nil {
 			logger.WithError(err).Error("failed to validate request")
 			transport.WriteBadRequestError(w, err)
