@@ -12,8 +12,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-app-chaosengine/config"
 	"github.com/mattermost/mattermost-app-chaosengine/gameday"
-	"github.com/mattermost/mattermost-app-chaosengine/store"
 	"github.com/mattermost/mattermost-app-chaosengine/mattermost"
+	"github.com/mattermost/mattermost-app-chaosengine/store"
 	"github.com/mattermost/mattermost-plugin-apps/apps"
 	"github.com/oklog/oklog/pkg/group"
 	log "github.com/sirupsen/logrus"
@@ -62,7 +62,7 @@ func main() {
 	}
 	manifest.AppType = cfg.App.Type
 	mattermost.AddRoutes(r, &manifest, staticAssets, cfg.App.Secret, cfg.Debug)
-	
+
 	if cfg.Database.Scheme != "" && cfg.Database.URL != "" {
 		store, err := store.New(cfg.Database, logger)
 		if err != nil {
