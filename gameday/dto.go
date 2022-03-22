@@ -14,15 +14,6 @@ type ConfigureDTO struct {
 	Url    string `json:"url"`
 }
 
-type ErrInvalidDatabaseScheme struct {
-	Err error
-}
-
-// Error type for Invalid Database scheme
-func (r *ErrInvalidDatabaseScheme) Error() string {
-	return r.Err.Error()
-}
-
 // Validate check if the DTO has the required values
 func (c ConfigureDTO) Validate() error {
 	if c.Scheme == "" {
@@ -30,9 +21,8 @@ func (c ConfigureDTO) Validate() error {
 	}
 
 	if c.Scheme != "sqlite" && c.Scheme != "sqlite3" && c.Scheme != "postgresql" && c.Scheme != "postgres" {
-		return &ErrInvalidDatabaseScheme{
-			Err: errors.New("failed: given value for `scheme` is not supported"),
-		}
+		ErrInvalidDatabaseScheme := errors.New("failed: given value for `scheme` is not supported")
+		return ErrInvalidDatabaseScheme
 	}
 
 	if c.Url == "" {
