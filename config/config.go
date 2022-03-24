@@ -65,7 +65,7 @@ func init() {
 // Load will load the necessary config
 func Load(logger logrus.FieldLogger) (Options, error) {
 	if err := viper.ReadInConfig(); err != nil {
-		errors.Wrap(err, "unable to find config.yml. loading config from environment variables")
+		logger.Warn(errors.Wrap(err, "unable to find config.yml. loading config from environment variables").Error())
 	}
 
 	var cfg Options
