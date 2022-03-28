@@ -2,6 +2,7 @@
 ChaosEngine app nominate randomly a different MoD and On-call person for every Gameday. The On-Call person is different from the normal process, so the team can practice and act independently when the time comes.
 
 The Chaos Engine App is integrated in Mattermost and you can create:
+- Chaos Configure `/chaos-engine configure --scheme "<sqlite3 | postgres | postgresql>" --url "<valid database URL for the specified scheme>"`
 - Chaos Teams create `/chaos-engine team create --name sre --member @spiros`
 - Chaos Teams add another member `/chaos-engine team create --name sre --member @bar`
 - Chaos Teams list `/chaos-engine team list`
@@ -22,8 +23,8 @@ Here are available configuration to run the app:
 | app.type              | http                              | mattermost app type |
 | app.root_url          | http://localhost:3000             | the root url of the app |
 | app.secret            | secretkey                         | The secret key to install the app in Mattermost and JWT authentication |
-| db.scheme             | http://localhost:3000             | the scheme, supports `sqlite3`, `postgres`, `postgresql`|
-| db.url                | sqlite3://engine.db"              | the database URL which can be sqlite DB or Postgres DSN |
+| db.scheme             | nil                               | the scheme, supports `sqlite3`, `postgres`, `postgresql`|
+| db.url                | nil                               | the database URL which can be sqlite DB or Postgres DSN e.g: `sqlite3://engine.db` |
 | db.idle_conns         | 2                                 | the number of idle connections |
 | db.max_open_conns     | 1                                 | the max number of open connections |
 | db.max_conn_lifetime  | 1                                 | the max connection lifetime |

@@ -37,7 +37,7 @@ func init() {
 	viper.SetEnvPrefix("chaos_engine")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AddConfigPath(".")
-	viper.SetConfigFile("config")
+	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
 
 	defaults := map[string]interface{}{
@@ -51,8 +51,6 @@ func init() {
 		"app.secret":   "secretkey",
 
 		// database
-		"db.scheme":            "sqlite3",
-		"db.url":               "sqlite3://engine.db",
 		"db.rds.secret_name":   nil, // to be supported
 		"db.idle_conns":        2,
 		"db.max_open_conns":    1,
@@ -67,8 +65,9 @@ func init() {
 // Load will load the necessary config
 func Load(logger logrus.FieldLogger) (Options, error) {
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Warn("unable to find config.yml. loading config from environment variables")
+		logger.Warn(errors.Wrap(err, "unable to find config.yml. loading config from environment variables").Error())
 	}
+
 	var cfg Options
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return Options{}, errors.Wrap(err, "failed to load")
@@ -78,4 +77,12 @@ func Load(logger logrus.FieldLogger) (Options, error) {
 	}
 
 	return cfg, nil
+}
+
+func SetDatabaseConfig(scheme string, url string, logger logrus.FieldLogger) (Options, error) {
+
+	viper.Set("db.scheme", scheme)
+	viper.Set("db.url", url)
+
+	return Load(logger)
 }
